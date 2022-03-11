@@ -1,5 +1,5 @@
 const Discord = require("discord.js");
-const { joinVoiceChannel, createAudioPlayer, createAudioResource, createReadStream, AudioPlayerStatus, VoiceConnectionStatus, entersState } = require('@discordjs/voice');
+const { joinVoiceChannel, createAudioPlayer, createAudioResource, createReadStream, AudioPlayerStatus, VoiceConnectionStatus, entersState, StreamType  } = require('@discordjs/voice');
 const { prefix, token } = require("./config.json");
 const playdl = require('play-dl')
 const emojiCharacters = require('./emoji');
@@ -100,7 +100,7 @@ async function execute(message, serverQueue) {
                     return filter_list.includes(reaction.emoji.name) && user.id === message.author.id;
                 };
                 let reactionPromise = new Promise((resolve, reject) => {
-                new_msg.awaitReactions({ filter, max: 1, time: 10000, errors: ['time'] })
+                new_msg.awaitReactions({ filter, max: 1, time: 100000, errors: ['time'] })
                     .then(collected => {
                         const reaction = collected.first();
                         song = song[inverseEmojiCharacters[reaction.emoji.name] - 1]
