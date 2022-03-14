@@ -134,7 +134,7 @@ async function execute(message, serverQueue) {
     }
 
 
-    if (!serverQueue) {
+    if (!message.guild.id in queue) {
         const queueContruct = {
             textChannel: message.channel,
             voiceChannel: voiceChannel,
@@ -271,8 +271,9 @@ async function play(guild, song) {
         /*serverQueue.disconnect_timeout = setTimeout(function() {
             leave_with_timeout(guild.id);
         }, 10000);*/
-        queue.delete(guild.id);
         serverQueue.connection.destroy();
+        queue.delete(guild.id);
+
         return;
     }
     let stream = await playdl.stream_from_info(song, {precache: 10, quality: 2})
