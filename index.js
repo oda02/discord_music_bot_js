@@ -132,9 +132,8 @@ async function execute(message, serverQueue) {
         console.log(err)
         return message.reply('err');
     }
-
-
-    if (!message.guild.id in queue) {
+    
+    if (!(message.guild.id in queue)) {
         const queueContruct = {
             textChannel: message.channel,
             voiceChannel: voiceChannel,
