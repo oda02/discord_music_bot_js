@@ -132,8 +132,9 @@ async function execute(message, serverQueue) {
         console.log(err)
         return message.reply('err');
     }
-    
-    if (!(message.guild.id in queue)) {
+
+
+    if (!queue.has(message.guild.id)) {
         const queueContruct = {
             textChannel: message.channel,
             voiceChannel: voiceChannel,
@@ -186,8 +187,6 @@ async function execute(message, serverQueue) {
     } else {
         serverQueue.songs.push(song);
         return message.channel.send(`${song.video_details.title} has been added to the queue!`);
-
-
     }
 }
 
