@@ -4,6 +4,9 @@ const { prefix, token } = require("./config.json");
 const playdl = require('play-dl')
 const emojiCharacters = require('./emoji');
 const inverseEmojiCharacters = require('./inverse_emoji');
+const all_commands = {
+
+}
 
 const client = new Discord.Client({intents: ["GUILDS", "GUILD_MESSAGES", 'GUILD_VOICE_STATES', 'GUILD_MESSAGE_REACTIONS']});
 client.login(token);
@@ -183,14 +186,7 @@ async function execute(message, serverQueue) {
         }
     } else {
         serverQueue.songs.push(song);
-        try {
-            clearTimeout(serverQueue.disconnect_timeout);
-            await play(message.guild, serverQueue.songs[0]);
-            return;
-        } catch(e) {
-            // there's no leaveTimer
-            return message.channel.send(`${song.video_details.title} has been added to the queue!`);
-        }
+        return message.channel.send(`${song.video_details.title} has been added to the queue!`);
 
 
     }
