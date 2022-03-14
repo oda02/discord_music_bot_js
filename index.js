@@ -140,7 +140,8 @@ async function execute(message, serverQueue) {
             songs: [],
             volume: 5,
             playing: true,
-            player_listeners_set: false
+            player_listeners_set: false,
+            disconnect_timeout: null
         };
 
         queue.set(message.guild.id, queueContruct);
@@ -174,7 +175,7 @@ async function execute(message, serverQueue) {
             queueContruct.connection = connection;
             queueContruct.player = player;
 
-            play(message.guild, queueContruct.songs[0]);
+            await play(message.guild, queueContruct.songs[0]);
         } catch (err) {
             console.log(err);
             queue.delete(message.guild.id);
@@ -182,12 +183,23 @@ async function execute(message, serverQueue) {
         }
     } else {
         serverQueue.songs.push(song);
-        return message.channel.send(`${song.video_details.title} has been added to the queue!`);
+        try {
+            clearTimeout(serverQueue.disconnect_timeout);
+            await play(message.guild, serverQueue.songs[0]);
+            return;
+        } catch(e) {
+            // there's no leaveTimer
+            return message.channel.send(`${song.video_details.title} has been added to the queue!`);
+        }
+
+
     }
 }
 
 function display_queue(message, serverQueue) {
     if(!serverQueue)
+        return message.reply('Очередь пуста');
+    if(serverQueue.songs.length == 0)
         return message.reply('Очередь пуста');
     const exampleEmbed = new Discord.MessageEmbed()
         .setTitle('Очередь')
@@ -232,9 +244,25 @@ function stop(message, serverQueue, guild) {
 
     serverQueue.songs = [];
     //serverQueue.player.stop();
-    serverQueue.player.stop();
+    serverQueue.player.stop();/*
+    if (!serverQueue.disconnect_timeout) {
+        console.log('1212')
+        serverQueue.disconnect_timeout = setTimeout(function () {
+            leave_with_timeout(guild.id);
+        }, 100000);
+    }*/
     queue.delete(guild.id);
+    serverQueue.connection.destroy();
+
 }
+/*
+function leave_with_timeout(guild_id) {
+    const serverQueue = queue.get(guild_id);
+    if(serverQueue) {
+        serverQueue.connection.destroy()
+        queue.delete(guild_id);
+    }
+}*/
 
 async function play(guild, song) {
     const serverQueue = queue.get(guild.id);
@@ -244,7 +272,11 @@ async function play(guild, song) {
             serverQueue.player.stop();
         }
         catch (err){}
+        /*serverQueue.disconnect_timeout = setTimeout(function() {
+            leave_with_timeout(guild.id);
+        }, 10000);*/
         queue.delete(guild.id);
+        serverQueue.connection.destroy();
         return;
     }
     let stream = await playdl.stream_from_info(song, {precache: 10, quality: 2})
